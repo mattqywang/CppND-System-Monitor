@@ -44,6 +44,11 @@ private:
 };
 
 // TODO: Define all of the above functions below:
+vector<string>splitByWhiteSpace(string stringToSplit){
+       istringstream buf(stringToSplit);
+       istream_iterator<string> beg(buf),end;
+       return vector<string>(beg,end);
+}
 
 string ProcessParser::getCmd(string pid)
 {
@@ -92,9 +97,7 @@ string ProcessParser::getVmSize(string pid)
         // Searching line by line
         if (line.compare(0, name.size(),name) == 0) {
             // slicing string line on ws for values using sstream
-            istringstream buf(line);
-            istream_iterator<string> beg(buf), end;
-            vector<string> values(beg, end);
+            vector<string> values = splitByWhiteSpace(line);
             //conversion kB -> GB
             result = (stof(values[1])/float(1024));
             break;
@@ -135,9 +138,7 @@ long int ProcessParser::getSysUpTime()
     ifstream stream;
     Util::getStream((Path::basePath() + Path::upTimePath()), stream);
     getline(stream,line);
-    istringstream buf(line);
-    istream_iterator<string> beg(buf), end;
-    vector<string> values(beg, end);
+    vector<string> values = splitByWhiteSpace(line);
     return stoi(values[0]);
 }
 
@@ -150,9 +151,7 @@ string ProcessParser::getProcUpTime(string pid)
     Util::getStream((Path::basePath() + pid + "/" +  Path::statPath()), stream);
     getline(stream, line);
     string str = line;
-    istringstream buf(str);
-    istream_iterator<string> beg(buf), end;
-    vector<string> values(beg, end); // done!
+    vector<string> values = splitByWhiteSpace(str);
     // Using sysconf to get clock ticks of the host machine
     return to_string(float(stof(values[13])/sysconf(_SC_CLK_TCK)));
 }
@@ -167,13 +166,12 @@ string ProcessParser::getProcUser(string pid)
     // Getting UID for user
     while (std::getline(stream, line)) {
         if (line.compare(0, name.size(),name) == 0) {
-            istringstream buf(line);
-            istream_iterator<string> beg(buf), end;
-            vector<string> values(beg, end);
+            vector<string> values = splitByWhiteSpace(line);
             result =  values[1];
             break;
         }
     }
+    stream.close();
     Util::getStream("/etc/passwd", stream);
     name =("x:" + result);
     // Searching for name of the user with selected UID
@@ -195,9 +193,7 @@ int getNumberOfCores()
     Util::getStream((Path::basePath() + "cpuinfo"), stream);
     while (std::getline(stream, line)) {
         if (line.compare(0, name.size(),name) == 0) {
-            istringstream buf(line);
-            istream_iterator<string> beg(buf), end;
-            vector<string> values(beg, end);
+            vector<string> values = splitByWhiteSpace(line);
             return stoi(values[3]);
         }
     }
@@ -215,9 +211,7 @@ vector<string> ProcessParser::getSysCpuPercent(string coreNumber)
     Util::getStream((Path::basePath() + Path::statPath()), stream);
     while (std::getline(stream, line)) {
         if (line.compare(0, name.size(),name) == 0) {
-            istringstream buf(line);
-            istream_iterator<string> beg(buf), end;
-            vector<string> values(beg, end);
+            vector<string> values = splitByWhiteSpace(line);
             // set of cpu data active and idle times;
             return values;
         }
@@ -274,21 +268,15 @@ float ProcessParser::getSysRamPercent()
         if (total_mem != 0 && free_mem != 0)
             break;
         if (line.compare(0, name1.size(), name1) == 0) {
-            istringstream buf(line);
-            istream_iterator<string> beg(buf), end;
-            vector<string> values(beg, end);
+            vector<string> values = splitByWhiteSpace(line);
             total_mem = stof(values[1]);
         }
         if (line.compare(0, name2.size(), name2) == 0) {
-            istringstream buf(line);
-            istream_iterator<string> beg(buf), end;
-            vector<string> values(beg, end);
+            vector<string> values = splitByWhiteSpace(line);
             free_mem = stof(values[1]);
         }
         if (line.compare(0, name3.size(), name3) == 0) {
-            istringstream buf(line);
-            istream_iterator<string> beg(buf), end;
-            vector<string> values(beg, end);
+            vector<string> values = splitByWhiteSpace(line);
             buffers = stof(values[1]);
         }
     }
@@ -304,9 +292,7 @@ string ProcessParser::getSysKernelVersion()
     Util::getStream((Path::basePath() + Path::versionPath()), stream);
     while (std::getline(stream, line)) {
         if (line.compare(0, name.size(),name) == 0) {
-            istringstream buf(line);
-            istream_iterator<string> beg(buf), end;
-            vector<string> values(beg, end);
+            vector<string> values = splitByWhiteSpace(line);
             return values[2];
         }
     }
@@ -347,9 +333,7 @@ int ProcessParser::getTotalThreads()
     Util::getStream((Path::basePath() + pid + Path::statusPath()), stream);
     while (std::getline(stream, line)) {
         if (line.compare(0, name.size(), name) == 0) {
-            istringstream buf(line);
-            istream_iterator<string> beg(buf), end;
-            vector<string> values(beg, end);
+            vector<string> values = splitByWhiteSpace(line);
             result += stoi(values[1]);
             break;
         }
@@ -367,9 +351,7 @@ int ProcessParser::getTotalNumberOfProcesses()
     Util::getStream((Path::basePath() + Path::statPath()), stream);
     while (std::getline(stream, line)) {
         if (line.compare(0, name.size(), name) == 0) {
-            istringstream buf(line);
-            istream_iterator<string> beg(buf), end;
-            vector<string> values(beg, end);
+            vector<string> values = splitByWhiteSpace(line);
             result += stoi(values[1]);
             break;
         }
@@ -386,9 +368,7 @@ int ProcessParser::getNumberOfRunningProcesses()
     Util::getStream((Path::basePath() + Path::statPath()), stream);
     while (std::getline(stream, line)) {
         if (line.compare(0, name.size(), name) == 0) {
-            istringstream buf(line);
-            istream_iterator<string> beg(buf), end;
-            vector<string> values(beg, end);
+            vector<string> values = splitByWhiteSpace(line);
             result += stoi(values[1]);
             break;
         }
